@@ -40,8 +40,9 @@ namespace Inspector {
 GRefPtr<GBytes> backendCommands()
 {
 #if PLATFORM(WPE)
-    static std::once_flag flag;
-    std::call_once(flag, [] {
+    static bool moduleLoaded = false;
+
+    if (!moduleLoaded) {
         const char* dataDir = PKGDATADIR;
         GUniqueOutPtr<GError> error;
 
@@ -51,11 +52,12 @@ GRefPtr<GBytes> backendCommands()
 
         GUniquePtr<char> gResourceFilename(g_build_filename(dataDir, "inspector.gresource", nullptr));
         GRefPtr<GResource> gresource = adoptGRef(g_resource_load(gResourceFilename.get(), &error.outPtr()));
-        if (!gresource) {
-            g_error("Error loading inspector.gresource: %s", error->message);
-        }
+        if (!gresource)
+            return nullptr;
+
         g_resources_register(gresource.get());
-    });
+        moduleLoaded = true;
+    }
 #endif
     GRefPtr<GBytes> bytes = adoptGRef(g_resources_lookup_data(INSPECTOR_BACKEND_COMMANDS_PATH, G_RESOURCE_LOOKUP_FLAGS_NONE, nullptr));
     ASSERT(bytes);
@@ -67,8 +69,12 @@ const CString& backendCommandsHash()
     static CString hexDigest;
     if (hexDigest.isNull()) {
         auto bytes = backendCommands();
+        if (!bytes)
+            return hexDigest;
+
         auto bytesSpan = span(bytes);
         ASSERT(bytesSpan.size());
+
         SHA1 sha1;
         sha1.addBytes(bytesSpan);
         hexDigest = sha1.computeHexDigest();
