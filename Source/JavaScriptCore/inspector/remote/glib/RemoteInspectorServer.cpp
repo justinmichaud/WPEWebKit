@@ -175,7 +175,7 @@ const SocketConnection::MessageHandlers& RemoteInspectorServer::messageHandlers(
 
 RemoteInspectorServer& RemoteInspectorServer::singleton()
 {
-    static RemoteInspectorServer server;
+    static NeverDestroyed<RemoteInspectorServer> server;
     return server;
 }
 
