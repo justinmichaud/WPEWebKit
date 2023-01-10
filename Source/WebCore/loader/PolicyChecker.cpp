@@ -293,6 +293,10 @@ void PolicyChecker::checkNavigationPolicy(ResourceRequest&& request, const Resou
     }
 
     auto documentLoader = frameLoader->loaderForWebsitePolicies();
+    // PolicyDecisionMode::Synchronous means that it is a FragmentNavigation and in that case we should use documentLoader,
+    // because there can be ongoing (in policy or provisional state) navigation.
+    if (policyDecisionMode == PolicyDecisionMode::Synchronous)
+        documentLoader = frameLoader->documentLoader();
     auto clientRedirectSourceForHistory = documentLoader ? documentLoader->clientRedirectSourceForHistory() : String();
     auto navigationID = documentLoader ? documentLoader->navigationID() : std::nullopt;
     bool hasOpener = !!frame->opener();
