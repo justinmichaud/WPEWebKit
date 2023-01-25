@@ -189,6 +189,7 @@ enum {
     PROP_ENABLE_WEBRTC,
     PROP_DISABLE_WEB_SECURITY,
     PROP_WEBRTC_UDP_PORTS_RANGE,
+    PROP_ALLOW_SCRIPTS_TO_CLOSE_WINDOWS,
     N_PROPERTIES,
 };
 
@@ -419,6 +420,9 @@ ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     case PROP_WEBRTC_UDP_PORTS_RANGE:
         webkit_settings_set_webrtc_udp_ports_range(settings, g_value_get_string(value));
         break;
+    case PROP_ALLOW_SCRIPTS_TO_CLOSE_WINDOWS:
+        webkit_settings_set_allow_scripts_to_close_windows(settings, g_value_get_boolean(value));
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, propId, paramSpec);
         break;
@@ -632,6 +636,9 @@ ALLOW_DEPRECATED_DECLARATIONS_BEGIN
         break;
     case PROP_WEBRTC_UDP_PORTS_RANGE:
         g_value_set_string(value, webkit_settings_get_webrtc_udp_ports_range(settings));
+        break;
+    case PROP_ALLOW_SCRIPTS_TO_CLOSE_WINDOWS:
+        g_value_set_boolean(value, webkit_settings_get_allow_scripts_to_close_windows(settings));
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, propId, paramSpec);
@@ -1713,6 +1720,19 @@ static void webkit_settings_class_init(WebKitSettingsClass* klass)
         _("WebRTC UDP ports range"),
         _("WebRTC UDP ports range, the format is min-port:max-port"),
         nullptr, // A null string forces the default value.
+        readWriteConstructParamFlags);
+
+    /**
+     * WebKitSettings:allow-scripts-to-close-windows:
+     *
+     * Allow scripts to close windows they didn't open.
+     *
+    */
+    sObjProperties[PROP_ALLOW_SCRIPTS_TO_CLOSE_WINDOWS] = g_param_spec_boolean(
+        "allow-scripts-to-close-windows",
+        _("Allow scripts to close windows"),
+        _("Whether scripts can close windows they didn't open."),
+        FALSE,
         readWriteConstructParamFlags);
 
     g_object_class_install_properties(gObjectClass, N_PROPERTIES, sObjProperties.data());
@@ -4437,4 +4457,40 @@ webkit_settings_set_webrtc_udp_ports_range(WebKitSettings* settings, const gchar
 #else
     UNUSED_PARAM(udpPortsRange);
 #endif
+}
+
+/**
+ * webkit_settings_get_allow_scripts_to_close_windows:
+ * @settings: a #WebKitSettings
+ *
+ * Get the #WebKitSettings:allow-scripts-to-close-windows property.
+ *
+ * Returns: %TRUE If script can close windows not opened by them or %FALSE otherwise.
+ */
+ gboolean webkit_settings_get_allow_scripts_to_close_windows (WebKitSettings *settings)
+ {
+    g_return_val_if_fail(WEBKIT_IS_SETTINGS(settings), FALSE);
+
+    return settings->priv->preferences->allowScriptsToCloseWindows();
+}
+
+/**
+ * webkit_settings_set_allow_scripts_to_close_windows
+ * @settings: a #WebKitSettings
+ * @allowed: Value to be set
+ *
+ * Set the #WebKitSettings:allow-scripts-to-close-windows property.
+ */
+WEBKIT_API void
+webkit_settings_set_allow_scripts_to_close_windows(WebKitSettings *settings, gboolean allowed)
+{
+    g_return_if_fail(WEBKIT_IS_SETTINGS(settings));
+
+    WebKitSettingsPrivate* priv = settings->priv;
+    bool currentValue = priv->preferences->allowScriptsToCloseWindows();
+    if (currentValue == allowed)
+        return;
+
+    priv->preferences->setAllowScriptsToCloseWindows(allowed);
+    g_object_notify(G_OBJECT(settings), "allow-scripts-to-close-windows");
 }
