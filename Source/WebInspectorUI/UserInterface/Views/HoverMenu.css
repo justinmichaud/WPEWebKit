@@ -58,7 +58,7 @@
     width: 15px;
     height: 13px;
 
-    content: image-set(url(../Images/HoverMenuButton.png) 1x, url(../Images/HoverMenuButton@2x.png) 2x);
+    content: url(../Images/HoverMenuButton.png);
     transform: translateY(-1px);
 }
 

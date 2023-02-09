@@ -62,7 +62,7 @@
     width: 20px;
     height: 26px;
 
-    background-image: image-set(url(../Images/GradientStop.png) 1x, url(../Images/GradientStop@2x.png) 2x);
+    background-image: url(../Images/GradientStop.png);
 
     transition: opacity 350ms;
 }
@@ -73,7 +73,7 @@
 }
 
 .gradient-slider-knob.selected {
-    background-image: image-set(url(../Images/GradientStopSelected.png) 1x, url(../Images/GradientStopSelected@2x.png) 2x);
+    background-image: url(../Images/GradientStopSelected.png);
 }
 
 .gradient-slider-knob.detaching {

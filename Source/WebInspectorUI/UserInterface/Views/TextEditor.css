@@ -104,7 +104,7 @@
 
     z-index: -1;
 
-    background-image: image-set(url(../Images/InstructionPointer.png) 1x, url(../Images/InstructionPointer@2x.png) 2x);
+    background-image: url(../Images/InstructionPointer.png);
     background-size: 9px 100%;
     background-repeat: no-repeat;
 }
