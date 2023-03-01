@@ -198,6 +198,8 @@ bool SQLiteStorageArea::prepareDatabase(ShouldCreateIfNotExists shouldCreateIfNo
     // We will never access the database from different threads simultaneously.
     checkedDatabase()->disableThreadingChecks();
 
+    m_database->enableAutomaticWALTruncation();
+
     if (!createTableIfNecessary()) {
         m_database = nullptr;
         return false;
