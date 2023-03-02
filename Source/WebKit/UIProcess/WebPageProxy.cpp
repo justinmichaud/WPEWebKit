@@ -12084,6 +12084,8 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
     parameters.hasResizableWindows = pageClient && pageClient->hasResizableWindows();
 #endif
 
+    parameters.localStorageQuota = m_websiteDataStore->localStorageQuota();
+
 #if ENABLE(ADVANCED_PRIVACY_PROTECTIONS)
     parameters.linkDecorationFilteringData = LinkDecorationFilteringController::sharedSingleton().cachedListData();
     parameters.allowedQueryParametersForAdvancedPrivacyProtections = cachedAllowedQueryParametersForAdvancedPrivacyProtections();
