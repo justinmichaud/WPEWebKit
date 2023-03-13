@@ -27,9 +27,12 @@
 #include "CacheModel.h"
 
 #include <algorithm>
+#include <wtf/Assertions.h>
 #include <wtf/RAMSize.h>
 #include <wtf/Seconds.h>
 #include <wtf/StdLibExtras.h>
+#include <wtf/text/WTFString.h>
+#include <wtf/text/StringToIntegerConversion.h>
 
 namespace WebKit {
 
@@ -169,6 +172,25 @@ uint64_t calculateURLCacheDiskCapacity(CacheModel cacheModel, uint64_t diskFreeS
     default:
         ASSERT_NOT_REACHED();
     };
+
+    auto s = String::fromLatin1(getenv("WPE_DISK_CACHE_SIZE"));
+    if (!s.isEmpty()) {
+        String value = s.trim(deprecatedIsSpaceOrNewline).convertToLowercaseWithoutLocale();
+        size_t units = 1;
+        if (value.endsWith('k'))
+            units = KB;
+        else if (value.endsWith('m'))
+            units = MB;
+        if (units != 1)
+            value = value.substring(0, value.length()-1);
+
+        urlCacheDiskCapacity = parseInteger<uint64_t>(value).value_or(0) * units;
+        if (urlCacheDiskCapacity > diskFreeSize * MB) {
+            WTFLogAlways("Disabling cache due to lack of disk space (wanted space: %ju, disk free space: %ju [bytes])",
+                         urlCacheDiskCapacity, diskFreeSize * MB);
+            urlCacheDiskCapacity = 0;
+        }
+    }
 
     return urlCacheDiskCapacity;
 }
