@@ -59,10 +59,13 @@ void WebPageProxy::Internals::didResumeSpeaking(WebCore::PlatformSpeechSynthesis
         handler();
 }
 
-void WebPageProxy::Internals::speakingErrorOccurred(WebCore::PlatformSpeechSynthesisUtterance&)
+void WebPageProxy::Internals::speakingErrorOccurred(WebCore::PlatformSpeechSynthesisUtterance&, std::optional<WebCore::SpeechSynthesisErrorCode> error)
 {
     Ref protectedPage = page.get();
-    protectedPage->protectedLegacyMainFrameProcess()->send(Messages::WebPage::SpeakingErrorOccurred(), protectedPage->webPageIDInMainFrameProcess());
+    if (!error)
+        protectedPage.legacyMainFrameProcess().send(Messages::WebPage::SpeakingErrorOccurred(std::nullopt), protectedPage.webPageIDInMainFrameProcess());
+    else
+        protectedPage.legacyMainFrameProcess().send(Messages::WebPage::SpeakingErrorOccurred(static_cast<uint8_t>(*error)), protectedPage.webPageIDInMainFrameProcess());
 }
 
 void WebPageProxy::Internals::boundaryEventOccurred(WebCore::PlatformSpeechSynthesisUtterance&, WebCore::SpeechBoundary speechBoundary, unsigned charIndex, unsigned charLength)

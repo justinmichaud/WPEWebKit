@@ -87,7 +87,7 @@ void SpeechSynthesis::setPlatformSynthesizer(Ref<PlatformSpeechSynthesizer>&& sy
         m_voiceList = std::nullopt;
     m_utteranceQueue.clear();
     // Finish current utterance.
-    speakingErrorOccurred();
+    speakingErrorOccurred(SpeechSynthesisErrorCode::Canceled);
     m_isPaused = false;
     m_speechSynthesisClient = nullptr;
 }
@@ -193,7 +193,7 @@ void SpeechSynthesis::cancel()
         speechSynthesisClient->cancel();
         // If we wait for cancel to callback speakingErrorOccurred, then m_currentSpeechUtterance will be null
         // and the event won't be processed. Instead we process the error immediately.
-        speakingErrorOccurred();
+        speakingErrorOccurred(SpeechSynthesisErrorCode::Canceled);
         m_currentSpeechUtterance = nullptr;
     } else if (RefPtr platformSpeechSynthesizer = m_platformSpeechSynthesizer)
         platformSpeechSynthesizer->cancel();
@@ -229,18 +229,18 @@ void SpeechSynthesis::resumeSynthesis()
     }
 }
 
-void SpeechSynthesis::handleSpeakingCompleted(SpeechSynthesisUtterance& utterance, bool errorOccurred)
+void SpeechSynthesis::handleSpeakingCompleted(SpeechSynthesisUtterance& utterance, std::optional<SpeechSynthesisErrorCode> error)
 {
     ASSERT(m_currentSpeechUtterance);
     Ref<SpeechSynthesisUtterance> protect(utterance);
 
     m_currentSpeechUtterance = nullptr;
 
-    if (errorOccurred)
-        utterance.errorEventOccurred(eventNames().errorEvent, SpeechSynthesisErrorCode::Canceled);
+    if (error)
+        utterance.errorEventOccurred(eventNames().errorEvent, *error);
     else
         utterance.eventOccurred(eventNames().endEvent, 0, 0, String());
-    
+
     if (m_utteranceQueue.size()) {
         Ref<SpeechSynthesisUtterance> firstUtterance = m_utteranceQueue.takeFirst();
         ASSERT(&utterance == firstUtterance.ptr());
@@ -299,11 +299,11 @@ void SpeechSynthesis::didResumeSpeaking()
     didResumeSpeaking(protectedCurrentSpeechUtterance()->platformUtterance());
 }
 
-void SpeechSynthesis::speakingErrorOccurred()
+void SpeechSynthesis::speakingErrorOccurred(std::optional<SpeechSynthesisErrorCode> error)
 {
     if (!m_currentSpeechUtterance)
         return;
-    speakingErrorOccurred(protectedCurrentSpeechUtterance()->platformUtterance());
+    speakingErrorOccurred(protectedCurrentSpeechUtterance()->platformUtterance(), error);
 }
 
 void SpeechSynthesis::boundaryEventOccurred(bool wordBoundary, unsigned charIndex, unsigned charLength)
@@ -341,13 +341,13 @@ void SpeechSynthesis::didResumeSpeaking(PlatformSpeechSynthesisUtterance& uttera
 void SpeechSynthesis::didFinishSpeaking(PlatformSpeechSynthesisUtterance& utterance)
 {
     if (utterance.client())
-        handleSpeakingCompleted(static_cast<SpeechSynthesisUtterance&>(*utterance.client()), false);
+        handleSpeakingCompleted(static_cast<SpeechSynthesisUtterance&>(*utterance.client()), std::nullopt);
 }
 
-void SpeechSynthesis::speakingErrorOccurred(PlatformSpeechSynthesisUtterance& utterance)
+void SpeechSynthesis::speakingErrorOccurred(PlatformSpeechSynthesisUtterance& utterance, std::optional<SpeechSynthesisErrorCode> error)
 {
     if (utterance.client())
-        handleSpeakingCompleted(static_cast<SpeechSynthesisUtterance&>(*utterance.client()), true);
+        handleSpeakingCompleted(static_cast<SpeechSynthesisUtterance&>(*utterance.client()), error);
 }
 
 RefPtr<SpeechSynthesisUtterance> SpeechSynthesis::protectedCurrentSpeechUtterance()

@@ -86,7 +86,7 @@ private:
     void didPauseSpeaking(PlatformSpeechSynthesisUtterance&) override;
     void didResumeSpeaking(PlatformSpeechSynthesisUtterance&) override;
     void didFinishSpeaking(PlatformSpeechSynthesisUtterance&) override;
-    void speakingErrorOccurred(PlatformSpeechSynthesisUtterance&) override;
+    void speakingErrorOccurred(PlatformSpeechSynthesisUtterance&, std::optional<SpeechSynthesisErrorCode>) override;
     void boundaryEventOccurred(PlatformSpeechSynthesisUtterance&, SpeechBoundary, unsigned charIndex, unsigned charLength) override;
 
     // SpeechSynthesisClientObserver
@@ -94,7 +94,7 @@ private:
     void didFinishSpeaking() override;
     void didPauseSpeaking() override;
     void didResumeSpeaking() override;
-    void speakingErrorOccurred() override;
+    void speakingErrorOccurred(std::optional<SpeechSynthesisErrorCode>) override;
     void boundaryEventOccurred(bool wordBoundary, unsigned charIndex, unsigned charLength) override;
     void voicesChanged() override;
 
@@ -102,7 +102,7 @@ private:
     bool virtualHasPendingActivity() const final;
 
     void startSpeakingImmediately(SpeechSynthesisUtterance&);
-    void handleSpeakingCompleted(SpeechSynthesisUtterance&, bool errorOccurred);
+    void handleSpeakingCompleted(SpeechSynthesisUtterance&, std::optional<SpeechSynthesisErrorCode>);
 
     // EventTarget
     ScriptExecutionContext* scriptExecutionContext() const final { return ActiveDOMObject::scriptExecutionContext(); }

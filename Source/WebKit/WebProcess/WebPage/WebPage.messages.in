@@ -690,7 +690,7 @@ messages -> WebPage WantsAsyncDispatchMessage {
     SimulateDeviceOrientationChange(double alpha, double beta, double gamma)
 
 #if ENABLE(SPEECH_SYNTHESIS)
-    SpeakingErrorOccurred()
+    SpeakingErrorOccurred(std::optional<uint8_t> error)
     BoundaryEventOccurred(bool wordBoundary, unsigned charIndex, unsigned charLength)
     VoicesDidChange()
 #endif
