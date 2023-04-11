@@ -164,7 +164,7 @@ Ref<Document> DOMImplementation::createDocument(const String& contentType, Local
     // Plug-ins cannot take over for HTML, XHTML, plain text, or non-PDF images.
     if (equalLettersIgnoringASCIICase(contentType, "text/html"_s))
         return HTMLDocument::create(frame, settings, url, documentIdentifier);
-    if (equalLettersIgnoringASCIICase(contentType, "application/xhtml+xml"_s))
+    if (equalLettersIgnoringASCIICase(contentType, "application/xhtml+xml"_s) || equalLettersIgnoringASCIICase(contentType, "application/vnd.hbbtv.xhtml+xml"_s))
         return XMLDocument::createXHTML(frame, settings, url);
     if (equalLettersIgnoringASCIICase(contentType, "text/plain"_s))
         return TextDocument::create(frame, settings, url, documentIdentifier);
