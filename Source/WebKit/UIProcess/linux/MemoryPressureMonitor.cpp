@@ -418,6 +418,30 @@ void CGroupMemoryController::setMemoryControllerPath(CString memoryControllerPat
     m_cgroupMemoryMemswUsageInBytesFile = getCgroupFile("memory", memoryControllerPath, CString("memory.memsw.usage_in_bytes"));
     m_cgroupMemoryLimitInBytesFile = getCgroupFile("memory", memoryControllerPath, CString("memory.limit_in_bytes"));
     m_cgroupMemoryUsageInBytesFile = getCgroupFile("memory", memoryControllerPath, CString("memory.usage_in_bytes"));
+
+    // when ran within (e.g. docker) container, it's possible that <controller_path> will be specified in /proc/self/cgroup
+    // and yet the paths like /sys/fs/cgroup/memory/<controller_path>/ will be unavailable
+    // therefore it's worth falling back to default files so that memory pressure monitor would still work as expected in such cases
+    const bool shouldFallbackToEmptyPath = isActive()
+        && m_cgroupMemoryControllerPath != "/"
+        && !m_cgroupV2MemoryCurrentFile
+        && !m_cgroupV2MemoryMemswMaxFile
+        && !m_cgroupV2MemoryMaxFile
+        && !m_cgroupV2MemoryHighFile
+        && !m_cgroupMemoryMemswLimitInBytesFile
+        && !m_cgroupMemoryMemswUsageInBytesFile
+        && !m_cgroupMemoryLimitInBytesFile
+        && !m_cgroupMemoryUsageInBytesFile;
+    if (shouldFallbackToEmptyPath) {
+        m_cgroupV2MemoryCurrentFile = getCgroupFile("/", "", CString("memory.current"));
+        m_cgroupV2MemoryMemswMaxFile = getCgroupFile("/", "", CString("memory.memsw.max"));
+        m_cgroupV2MemoryMaxFile = getCgroupFile("/", "", CString("memory.max"));
+        m_cgroupV2MemoryHighFile = getCgroupFile("/", "", CString("memory.high"));
+        m_cgroupMemoryMemswLimitInBytesFile = getCgroupFile("memory", "", CString("memory.memsw.limit_in_bytes"));
+        m_cgroupMemoryMemswUsageInBytesFile = getCgroupFile("memory", "", CString("memory.memsw.usage_in_bytes"));
+        m_cgroupMemoryLimitInBytesFile = getCgroupFile("memory", "", CString("memory.limit_in_bytes"));
+        m_cgroupMemoryUsageInBytesFile = getCgroupFile("memory", "", CString("memory.usage_in_bytes"));
+    }
 }
 
 void CGroupMemoryController::disposeMemoryController()
