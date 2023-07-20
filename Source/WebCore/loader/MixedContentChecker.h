@@ -32,6 +32,8 @@
 #include "FetchOptions.h"
 #include "ResourceLoaderOptions.h"
 #include <wtf/Forward.h>
+#include <wtf/KeyValuePair.h>
+#include <wtf/Vector.h>
 
 namespace WebCore {
 
@@ -57,6 +59,10 @@ bool shouldBlockRequestForRunnableContent(LocalFrame&, SecurityOrigin&, const UR
 void checkFormForMixedContent(LocalFrame&, const URL&);
 
 WEBCORE_EXPORT bool canModifyRequest(const URL&, FetchOptions::Destination, Initiator);
+
+void addMixedContentWhitelistEntry(const String& origin, const String& domain);
+void removeMixedContentWhitelistEntry(const String& origin, const String& domain);
+void resetMixedContentWhitelist();
 
 } // namespace MixedContentChecker
 } // namespace WebCore
