@@ -448,7 +448,11 @@ static void webkitWebContextConstructed(GObject* object)
     configuration.setUseSystemAppearanceForScrollbars(priv->useSystemAppearanceForScrollbars);
 #endif
 #else
+#if PLATFORM(WPE)
+    configuration.setProcessSwapsOnNavigation(false);
+#else
     configuration.setProcessSwapsOnNavigation(true);
+#endif
 #endif
     if (priv->memoryPressureSettings) {
         configuration.setMemoryPressureHandlerConfiguration(webkitMemoryPressureSettingsGetMemoryPressureHandlerConfiguration(priv->memoryPressureSettings));
