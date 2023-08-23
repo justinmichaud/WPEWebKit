@@ -825,6 +825,7 @@ GI_INTROSPECT(${WPE_WEB_PROCESS_EXTENSION_API_NAME} ${WPE_API_VERSION} wpe/${WPE
         ${DERIVED_SOURCES_WPE_API_DIR}/WebKitContextMenuActions.h
         ${DERIVED_SOURCES_WPE_API_DIR}/WebKitContextMenuItem.h
         ${DERIVED_SOURCES_WPE_API_DIR}/WebKitHitTestResult.h
+        ${DERIVED_SOURCES_WPE_API_DIR}/WebKitSecurityOrigin.h
         ${DERIVED_SOURCES_WPE_API_DIR}/WebKitUserMessage.h
         ${DERIVED_SOURCES_WPE_API_DIR}/WebKitURIRequest.h
         ${DERIVED_SOURCES_WPE_API_DIR}/WebKitURIResponse.h

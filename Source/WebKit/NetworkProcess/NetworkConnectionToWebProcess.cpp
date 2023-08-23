@@ -81,6 +81,7 @@
 #include <WebCore/DeprecatedGlobalSettings.h>
 #include <WebCore/DocumentStorageAccess.h>
 #include <WebCore/HTTPCookieAcceptPolicy.h>
+#include <WebCore/LegacySchemeRegistry.h>
 #include <WebCore/LogInitialization.h>
 #include <WebCore/LoginStatus.h>
 #include <WebCore/NetworkStorageSession.h>
@@ -773,6 +774,11 @@ void NetworkConnectionToWebProcess::registerURLSchemesAsCORSEnabled(Vector<Strin
     Ref registry = m_schemeRegistry;
     for (auto&& scheme : WTFMove(schemes))
         registry->registerURLSchemeAsCORSEnabled(WTFMove(scheme));
+}
+
+void NetworkConnectionToWebProcess::registerURLSchemeAsHandledBySchemeHandler(const String& scheme)
+{
+    WebCore::LegacySchemeRegistry::registerURLSchemeAsHandledBySchemeHandler(scheme);
 }
 
 static bool shouldTreatAsSameSite(const URL& firstParty, const URL& url)

@@ -72,7 +72,6 @@ bool OriginAccessPatternsForWebProcess::anyPatternMatches(const URL& url) const
 
 const EmptyOriginAccessPatterns& EmptyOriginAccessPatterns::singleton()
 {
-    ASSERT(!isInWebProcess());
     static NeverDestroyed<EmptyOriginAccessPatterns> instance;
     return instance.get();
 }
