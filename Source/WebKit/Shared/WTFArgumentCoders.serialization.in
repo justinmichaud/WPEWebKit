@@ -230,6 +230,7 @@ using WTF::ProcessID = pid_t;
 header: <wtf/MemoryPressureHandler.h>
 [CustomHeader] struct WTF::MemoryPressureHandlerConfiguration {
     uint64_t baseThreshold;
+    uint64_t baseThresholdVideo;
     double conservativeThresholdFraction;
     double strictThresholdFraction;
     std::optional<double> killThresholdFraction;
