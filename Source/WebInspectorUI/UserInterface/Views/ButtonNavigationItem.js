@@ -229,8 +229,11 @@ WI.ButtonNavigationItem = class ButtonNavigationItem extends WI.NavigationItem
 
             case WI.ButtonNavigationItem.ImageType.IMG: {
                 let img = this.element.appendChild(document.createElement("img"));
-                if (this._image)
+                if (this._image) {
+                    img.style.width = this._imageWidth + "px";
+                    img.style.height = this._imageHeight + "px";
                     img.src = this._image;
+		}
                 break;
             }
             }

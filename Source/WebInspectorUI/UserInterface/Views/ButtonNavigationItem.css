@@ -91,11 +91,6 @@
     color: var(--glyph-color-disabled);
 }
 
-.navigation-bar .item.button > img {
-    width: 100%;
-    height: 100%;
-}
-
 .navigation-bar .item.button.disabled > img {
     opacity: 0.3;
 }
