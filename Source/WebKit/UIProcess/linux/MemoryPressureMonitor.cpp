@@ -48,8 +48,13 @@ static const Seconds s_minPollingInterval { 1_s };
 static const Seconds s_maxPollingInterval { 5_s };
 static const double s_minUsedMemoryPercentageForPolling = 50;
 static const double s_maxUsedMemoryPercentageForPolling = 85;
+#if PLATFORM(WPE)
+static const int s_memoryPresurePercentageThreshold = 80;
+static const int s_memoryPresurePercentageThresholdCritical = 85;
+#else
 static const int s_memoryPresurePercentageThreshold = 90;
 static const int s_memoryPresurePercentageThresholdCritical = 95;
+#endif
 // cgroups.7: The usual place for such mounts is under a tmpfs(5)
 // filesystem mounted at /sys/fs/cgroup.
 static const char* s_cgroupMemoryPath = "/sys/fs/cgroup/%s/%s/%s";
