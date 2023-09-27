@@ -16732,6 +16732,12 @@ Ref<AboutSchemeHandler> WebPageProxy::protectedAboutSchemeHandler()
     return m_aboutSchemeHandler;
 }
 
+void WebPageProxy::sendMemoryPressureEvent(bool critical) const
+{
+    for (auto& processPool : WebProcessPool::allProcessPools())
+        processPool->sendMemoryPressureEvent(critical);
+}
+
 } // namespace WebKit
 
 #undef WEBPAGEPROXY_RELEASE_LOG
