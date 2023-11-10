@@ -79,6 +79,10 @@ class WebKitNamespace;
 class WebKitPoint;
 class WindowProxy;
 
+#if ENABLE(OIPF_VK)
+class VkConsts;
+#endif
+
 #if ENABLE(DEVICE_ORIENTATION)
 class DeviceMotionController;
 class DeviceOrientationController;
@@ -132,6 +136,10 @@ public:
     unsigned length() const;
     void focus(LocalDOMWindow& incumbentWindow);
     void blur();
+
+#if ENABLE(OIPF_VK)
+    ExceptionOr<RefPtr<VkConsts>> keyEvent();
+#endif
 
     ExceptionOr<AtomString> name() const;
     ExceptionOr<void> setName(const AtomString&);

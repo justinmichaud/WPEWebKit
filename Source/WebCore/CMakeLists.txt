@@ -2414,6 +2414,15 @@ if (USE_LIBWEBRTC)
     )
 endif ()
 
+if (ENABLE_OIPF_VK)
+    list(APPEND WebCore_IDL_FILES
+        page/VkConsts.idl
+    )
+    list(APPEND WebCore_SOURCES
+        page/VkConsts.cpp
+    )
+endif ()
+
 set(WebCoreTestSupport_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBCORE_DIR}/platform/mock"
     "${WEBCORE_DIR}/testing"

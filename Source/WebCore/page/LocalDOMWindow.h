@@ -68,6 +68,10 @@ using ReducedResolutionSeconds = Seconds;
 
 template<typename> class ExceptionOr;
 
+#if ENABLE(OIPF_VK)
+class VkConsts;
+#endif
+
 enum class IncludeTargetOrigin : bool { No, Yes };
 
 class LocalDOMWindowObserver : public CanMakeWeakPtr<LocalDOMWindowObserver> {
@@ -396,6 +400,10 @@ public:
     void deref() const final { DOMWindow::deref(); }
 #endif
 
+#if ENABLE(OIPF_VK)
+    RefPtr<VkConsts> keyEvent();
+#endif
+
 private:
     explicit LocalDOMWindow(Document&);
 
@@ -459,6 +467,9 @@ private:
 
     // Equivalent to the list of PerformanceEventTiming objects mentioned in https://www.w3.org/TR/event-timing/#sec-modifications-HTML :
     Vector<PerformanceEventTimingCandidate, 6> m_performanceEventTimingCandidates;
+#if ENABLE(OIPF_VK)
+    mutable RefPtr<VkConsts> m_keyEvent;
+#endif
 
     String m_status;
 
