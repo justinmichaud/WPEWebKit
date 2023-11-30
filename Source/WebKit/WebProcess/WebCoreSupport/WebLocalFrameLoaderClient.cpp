@@ -297,6 +297,16 @@ void WebLocalFrameLoaderClient::dispatchDidReceiveResponse(DocumentLoader*, Reso
 #if PLATFORM(GTK) || PLATFORM(WPE)
     webPage->send(Messages::WebPageProxy::DidReceiveResponseForResource(identifier, m_frame->frameID(), response));
 #endif
+
+    if (response.httpStatusCode() >= 400) {
+        StringBuilder message;
+        message.append("Failed to load resource: the server responded with a status of "_s);
+        message.append(String::number(response.httpStatusCode()));
+        message.append(" ("_s);
+        message.append(response.httpStatusText());
+        message.append(")"_s);
+        LOG(Loading,"dispatchDidReceiveResponse->message:%s", message.toString().utf8().data());
+    }
 }
 
 void WebLocalFrameLoaderClient::dispatchDidReceiveContentLength(DocumentLoader*, ResourceLoaderIdentifier identifier, int dataLength)
@@ -346,6 +356,8 @@ void WebLocalFrameLoaderClient::dispatchDidFailLoading(DocumentLoader* loader, W
 #endif
 
     webPage->removeResourceRequest(identifier, isMainResourceLoad == IsMainResourceLoad::Yes, loader && loader->frameLoader() ? loader->protectedFrameLoader()->protectedFrame().ptr() : nullptr);
+
+    LOG(Loading,"dispatchedDidFailLoading: isTimeout=%d, isCancellation=%d, isAccessControl=%d, errorCode=%d description:%s", error.isTimeout(), error.isCancellation(), error.isAccessControl(), error.errorCode(), error.localizedDescription().utf8().data());
 }
 
 bool WebLocalFrameLoaderClient::dispatchDidLoadResourceFromMemoryCache(DocumentLoader*, const ResourceRequest&, const ResourceResponse&, int /*length*/)
@@ -739,6 +751,8 @@ void WebLocalFrameLoaderClient::dispatchDidFailLoad(const ResourceError& error)
 
     // Notify the UIProcess.
     webPage->send(Messages::WebPageProxy::DidFailLoadForFrame(m_frame->frameID(), m_frame->info(), documentLoader->request(), documentLoader->navigationID(), error, UserData(WebProcess::singleton().transformObjectsToHandles(userData.get()).get())));
+
+    LOG(Loading,"dispatchDidFailLoad: isTimeout= %d, isCancellation= %d, isAccessControl= %d, errorCode= %d description: %s", error.isTimeout(), error.isCancellation(), error.isAccessControl(), error.errorCode(), error.localizedDescription().utf8().data());
 }
 
 void WebLocalFrameLoaderClient::dispatchDidFinishDocumentLoad()
