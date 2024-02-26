@@ -174,6 +174,7 @@ static ASCIILiteral toString(MemoryUsagePolicy policy)
     case MemoryUsagePolicy::Unrestricted: return "Unrestricted"_s;
     case MemoryUsagePolicy::Conservative: return "Conservative"_s;
     case MemoryUsagePolicy::Strict: return "Strict"_s;
+    case MemoryUsagePolicy::StrictSynchronous: return "StrictSynchronous"_s;
     }
     ASSERT_NOT_REACHED();
     return ""_s;
@@ -235,6 +236,8 @@ size_t MemoryPressureHandler::thresholdForPolicy(MemoryUsagePolicy policy, Memor
         return m_configuration.conservativeThresholdFraction * (type == MemoryType::Normal ? m_configuration.baseThreshold : m_configuration.baseThresholdVideo);
     case MemoryUsagePolicy::Strict:
         return m_configuration.strictThresholdFraction * (type == MemoryType::Normal ? m_configuration.baseThreshold : m_configuration.baseThresholdVideo);
+    case MemoryUsagePolicy::StrictSynchronous:
+        return type == MemoryType::Normal ? m_configuration.baseThreshold : m_configuration.baseThresholdVideo;
     default:
         ASSERT_NOT_REACHED();
         return 0;
@@ -243,6 +246,8 @@ size_t MemoryPressureHandler::thresholdForPolicy(MemoryUsagePolicy policy, Memor
 
 MemoryUsagePolicy MemoryPressureHandler::policyForFootprints(size_t footprint, size_t footprintVideo)
 {
+    if (footprint >= thresholdForPolicy(MemoryUsagePolicy::StrictSynchronous, MemoryType::Normal) || footprintVideo >= thresholdForPolicy(MemoryUsagePolicy::StrictSynchronous, MemoryType::Video))
+        return MemoryUsagePolicy::StrictSynchronous;
     if (footprint >= thresholdForPolicy(MemoryUsagePolicy::Strict, MemoryType::Normal) || footprintVideo >= thresholdForPolicy(MemoryUsagePolicy::Strict, MemoryType::Video))
         return MemoryUsagePolicy::Strict;
     if (footprint >= thresholdForPolicy(MemoryUsagePolicy::Conservative, MemoryType::Normal) || footprintVideo >= thresholdForPolicy(MemoryUsagePolicy::Conservative, MemoryType::Video))
@@ -334,6 +339,13 @@ void MemoryPressureHandler::measurementTimerFired()
         break;
     case MemoryUsagePolicy::Strict:
         releaseMemory(Critical::Yes, Synchronous::No);
+        break;
+    case MemoryUsagePolicy::StrictSynchronous:
+        WTFLogAlways("MemoryPressure: Critical memory usage (PID=%d) [MB]: %zu/%llu, video: %zu/%llu\n",
+                     getpid(),
+                     footprint / MB, m_configuration.baseThreshold / MB,
+                     footprintVideo / MB, m_configuration.baseThresholdVideo / MB);
+        releaseMemory(Critical::Yes, Synchronous::Yes);
         break;
     }
 }
