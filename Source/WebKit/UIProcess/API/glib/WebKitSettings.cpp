@@ -194,6 +194,7 @@ enum {
     PROP_ENABLE_DIRECTORY_UPLOAD,
     PROP_ALLOW_RUNNING_OF_INSECURE_CONTENT,
     PROP_ALLOW_DISPLAY_OF_INSECURE_CONTENT,
+    PROP_ENABLE_SERVICE_WORKER,
     N_PROPERTIES,
 };
 
@@ -439,6 +440,9 @@ ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     case PROP_ALLOW_DISPLAY_OF_INSECURE_CONTENT:
         webkit_settings_set_allow_display_of_insecure_content(settings, g_value_get_boolean(value));
         break;
+    case PROP_ENABLE_SERVICE_WORKER:
+        webkit_settings_set_enable_service_worker(settings, g_value_get_boolean(value));
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, propId, paramSpec);
         break;
@@ -667,6 +671,9 @@ ALLOW_DEPRECATED_DECLARATIONS_BEGIN
         break;
     case PROP_ALLOW_DISPLAY_OF_INSECURE_CONTENT:
         g_value_set_boolean(value, webkit_settings_get_allow_display_of_insecure_content(settings));
+        break;
+    case PROP_ENABLE_SERVICE_WORKER:
+        g_value_set_boolean(value, webkit_settings_get_enable_service_worker(settings));
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, propId, paramSpec);
@@ -1811,6 +1818,21 @@ static void webkit_settings_class_init(WebKitSettingsClass* klass)
         _("Allow display insecure content"),
         _("Whether display insecure content should be allowed."),
         FALSE,
+        readWriteConstructParamFlags);
+
+    /**
+     * WebKitSettings:enable-service-worker:
+     *
+     * Enable or disable service worker.
+     * This property will only work as intended if the ServiceWorker feature is enabled at build time
+     * with the ENABLE_SERVICE_WORKER flag.
+     *
+     */
+    sObjProperties[PROP_ENABLE_SERVICE_WORKER] = g_param_spec_boolean(
+        "enable-service-worker",
+        _("Enable service worker"),
+        _("Whether service worker support should be enabled."),
+        TRUE,
         readWriteConstructParamFlags);
 
     g_object_class_install_properties(gObjectClass, N_PROPERTIES, sObjProperties.data());
@@ -4722,4 +4744,43 @@ void webkit_settings_set_allow_display_of_insecure_content(WebKitSettings* setti
         priv->preferences->setUpgradeMixedContentEnabled(false);
 
     g_object_notify_by_pspec(G_OBJECT(settings), sObjProperties[PROP_ALLOW_DISPLAY_OF_INSECURE_CONTENT]);
+}
+
+/**
+ * webkit_settings_get_enable_service_worker:
+ * @settings: a #WebKitSettings
+ *
+ * Get the #WebKitSettings:enable-service-worker property.
+ *
+ * Returns: %TRUE if Service Worker support is enabled or %FALSE otherwise.
+ *
+ * Since: 2.38
+ */
+gboolean webkit_settings_get_enable_service_worker(WebKitSettings* settings)
+{
+    g_return_val_if_fail(WEBKIT_IS_SETTINGS(settings), FALSE);
+
+    return settings->priv->preferences->serviceWorkersEnabled();
+}
+
+/**
+ * webkit_settings_set_enable_service_worker:
+ * @settings: a #WebKitSettings
+ * @enabled: Value to be set
+ *
+ * Set the #WebKitSettings:enable-service-worker property.
+ *
+ * Since: 2.38
+ */
+void webkit_settings_set_enable_service_worker(WebKitSettings* settings, gboolean enabled)
+{
+    g_return_if_fail(WEBKIT_IS_SETTINGS(settings));
+
+    WebKitSettingsPrivate* priv = settings->priv;
+    bool currentValue = priv->preferences->serviceWorkersEnabled();
+    if (currentValue == enabled)
+        return;
+
+    priv->preferences->setServiceWorkersEnabled(enabled);
+    g_object_notify_by_pspec(G_OBJECT(settings), sObjProperties[PROP_ENABLE_SERVICE_WORKER]);
 }
