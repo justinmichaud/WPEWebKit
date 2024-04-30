@@ -228,6 +228,7 @@ private:
     std::optional<size_t> thresholdForMemoryKill(MemoryType);
     size_t thresholdForPolicy(MemoryUsagePolicy, MemoryType);
     MemoryUsagePolicy policyForFootprints(size_t, size_t);
+    size_t calculateFootprintForPolicyDecision(size_t footprint, size_t footprintVideo);
 
     void memoryPressureStatusChanged();
 

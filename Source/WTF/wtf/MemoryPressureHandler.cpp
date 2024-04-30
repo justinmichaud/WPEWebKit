@@ -58,6 +58,7 @@ static std::atomic<bool> s_hasCreatedMemoryPressureHandler;
 // platform component. It's a text file containing an unsigned integer value.
 static String s_GPUMemoryFile;
 static ssize_t s_envBaseThresholdVideo = 0;
+static bool s_videoMemoryInFootprint = false;
 
 static bool isWebProcess()
 {
@@ -150,6 +151,9 @@ MemoryPressureHandler::MemoryPressureHandler()
             if (s_envBaseThresholdVideo)
                 m_configuration.baseThresholdVideo = s_envBaseThresholdVideo;
         }
+        String gpuInRSS = String::fromLatin1(getenv("WPE_POLL_GPU_IN_FOOTPRINT"));
+        if (gpuInRSS == String::fromLatin1("1") || gpuInRSS.convertToASCIILowercase() == String::fromLatin1("true"))
+            s_videoMemoryInFootprint = true;
     }
 }
 
@@ -246,6 +250,7 @@ size_t MemoryPressureHandler::thresholdForPolicy(MemoryUsagePolicy policy, Memor
 
 MemoryUsagePolicy MemoryPressureHandler::policyForFootprints(size_t footprint, size_t footprintVideo)
 {
+    footprint = calculateFootprintForPolicyDecision(footprint, footprintVideo);
     if (footprint >= thresholdForPolicy(MemoryUsagePolicy::StrictSynchronous, MemoryType::Normal) || footprintVideo >= thresholdForPolicy(MemoryUsagePolicy::StrictSynchronous, MemoryType::Video))
         return MemoryUsagePolicy::StrictSynchronous;
     if (footprint >= thresholdForPolicy(MemoryUsagePolicy::Strict, MemoryType::Normal) || footprintVideo >= thresholdForPolicy(MemoryUsagePolicy::Strict, MemoryType::Video))
@@ -253,6 +258,16 @@ MemoryUsagePolicy MemoryPressureHandler::policyForFootprints(size_t footprint, s
     if (footprint >= thresholdForPolicy(MemoryUsagePolicy::Conservative, MemoryType::Normal) || footprintVideo >= thresholdForPolicy(MemoryUsagePolicy::Conservative, MemoryType::Video))
         return MemoryUsagePolicy::Conservative;
     return MemoryUsagePolicy::Unrestricted;
+}
+
+size_t MemoryPressureHandler::calculateFootprintForPolicyDecision(size_t footprint, size_t footprintVideo)
+{
+    // Some devices accounts video memory into the process memory footprint (as file mappings - RSSFile).
+    // In such cases, we need to subtract the video memory from the process memory footprint
+    // to make the memory pressure policy decision based on the process memory footprint only.
+    if (s_videoMemoryInFootprint)
+        footprint -= footprintVideo;
+    return footprint;
 }
 
 MemoryUsagePolicy MemoryPressureHandler::currentMemoryUsagePolicy()
@@ -341,9 +356,9 @@ void MemoryPressureHandler::measurementTimerFired()
         releaseMemory(Critical::Yes, Synchronous::No);
         break;
     case MemoryUsagePolicy::StrictSynchronous:
-        WTFLogAlways("MemoryPressure: Critical memory usage (PID=%d) [MB]: %zu/%llu, video: %zu/%llu\n",
+        WTFLogAlways("MemoryPressure: Critical memory usage (PID=%d) [MB]: %zu%s/%llu, video: %zu/%llu\n",
                      getpid(),
-                     footprint / MB, m_configuration.baseThreshold / MB,
+                     footprint / MB, s_videoMemoryInFootprint ? "(including video)" : "", m_configuration.baseThreshold / MB,
                      footprintVideo / MB, m_configuration.baseThresholdVideo / MB);
         releaseMemory(Critical::Yes, Synchronous::Yes);
         break;
