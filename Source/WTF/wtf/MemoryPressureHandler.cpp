@@ -308,7 +308,7 @@ void MemoryPressureHandler::setMemoryUsagePolicyBasedOnFootprints(size_t footpri
     if (newPolicy == m_memoryUsagePolicy)
         return;
 
-    RELEASE_LOG(MemoryPressure, "Memory usage policy changed: %s -> %s", toString(m_memoryUsagePolicy).characters(), toString(newPolicy).characters());
+    RELEASE_LOG(MemoryPressure, "Memory usage policy changed (PID=%d): %s -> %s", getpid(), toString(m_memoryUsagePolicy).characters(), toString(newPolicy).characters());
     m_memoryUsagePolicy = newPolicy;
     memoryPressureStatusChanged();
 }
@@ -329,7 +329,7 @@ void MemoryPressureHandler::measurementTimerFired()
     size_t footprint = memoryFootprint();
     size_t footprintVideo = memoryFootprintVideo();
 #if PLATFORM(COCOA)
-    RELEASE_LOG(MemoryPressure, "Current memory footprint: %zu MB", footprint / MB);
+    RELEASE_LOG(MemoryPressure, "Current memory footprint (PID=%d): %zu MB", getpid(), footprint / MB);
 #endif
 
     while (m_memoryFootprintNotificationThresholds.size() && footprint > m_memoryFootprintNotificationThresholds.last()) {
@@ -424,6 +424,15 @@ void MemoryPressureHandler::setConfiguration(Configuration&& configuration)
     m_configuration = WTFMove(configuration);
     if (s_envBaseThresholdVideo)
         m_configuration.baseThresholdVideo = s_envBaseThresholdVideo;
+
+    RELEASE_LOG(MemoryPressure, "New memory pressure settings (PID=%d): bt=%u, btv=%u, ctf=%lf, stf=%lf, ktf=%lf, pi=%lf",
+        getpid(),
+        m_configuration.baseThreshold,
+        m_configuration.baseThresholdVideo,
+        m_configuration.conservativeThresholdFraction,
+        m_configuration.strictThresholdFraction,
+        m_configuration.killThresholdFraction ? *(m_configuration.killThresholdFraction) : -1.0,
+        m_configuration.pollInterval.value());
 }
 
 void MemoryPressureHandler::setConfiguration(const Configuration& configuration)
@@ -431,6 +440,15 @@ void MemoryPressureHandler::setConfiguration(const Configuration& configuration)
     m_configuration = configuration;
     if (s_envBaseThresholdVideo)
         m_configuration.baseThresholdVideo = s_envBaseThresholdVideo;
+
+    RELEASE_LOG(MemoryPressure, "New memory pressure settings (PID=%d): bt=%u, btv=%u, ctf=%lf, stf=%lf, ktf=%lf, pi=%lf",
+        getpid(),
+        m_configuration.baseThreshold,
+        m_configuration.baseThresholdVideo,
+        m_configuration.conservativeThresholdFraction,
+        m_configuration.strictThresholdFraction,
+        m_configuration.killThresholdFraction ? *(m_configuration.killThresholdFraction) : -1.0,
+        m_configuration.pollInterval.value());
 }
 
 void MemoryPressureHandler::releaseMemory(Critical critical, Synchronous synchronous)

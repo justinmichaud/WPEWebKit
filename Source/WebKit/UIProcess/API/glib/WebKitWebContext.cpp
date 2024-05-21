@@ -135,6 +135,7 @@ enum {
 #endif
     PROP_MEMORY_PRESSURE_SETTINGS,
     PROP_TIME_ZONE_OVERRIDE,
+    PROP_SERVICE_WORKER_MEMORY_PRESSURE_SETTINGS,
     N_PROPERTIES,
 };
 
@@ -292,6 +293,7 @@ struct _WebKitWebContextPrivate {
 #endif
 
     WebKitMemoryPressureSettings* memoryPressureSettings;
+    WebKitMemoryPressureSettings* serviceWorkerMemoryPressureSettings;
 
     CString timeZoneOverride;
 };
@@ -419,6 +421,11 @@ static void webkitWebContextSetProperty(GObject* object, guint propID, const GVa
         context->priv->memoryPressureSettings = settings ? webkit_memory_pressure_settings_copy(static_cast<WebKitMemoryPressureSettings*>(settings)) : nullptr;
         break;
     }
+    case PROP_SERVICE_WORKER_MEMORY_PRESSURE_SETTINGS: {
+        gpointer settings = g_value_get_boxed(value);
+        context->priv->serviceWorkerMemoryPressureSettings = settings ? webkit_memory_pressure_settings_copy(static_cast<WebKitMemoryPressureSettings*>(settings)) : nullptr;
+        break;
+    }
     case PROP_TIME_ZONE_OVERRIDE: {
         const auto* timeZone = g_value_get_string(value);
         if (isTimeZoneValid(StringView::fromLatin1(timeZone)))
@@ -460,6 +467,11 @@ static void webkitWebContextConstructed(GObject* object)
         g_clear_pointer(&priv->memoryPressureSettings, webkit_memory_pressure_settings_free);
     }
     configuration.setTimeZoneOverride(String::fromUTF8(priv->timeZoneOverride.span()));
+    if (priv->serviceWorkerMemoryPressureSettings) {
+        configuration.setServiceWorkerMemoryPressureHandlerConfiguration(webkitMemoryPressureSettingsGetMemoryPressureHandlerConfiguration(priv->serviceWorkerMemoryPressureSettings));
+        // Once the settings have been passed to the ProcessPoolConfiguration, we don't need them anymore so we can free them.
+        g_clear_pointer(&priv->serviceWorkerMemoryPressureSettings, webkit_memory_pressure_settings_free);
+    }
 
 #if !ENABLE(2022_GLIB_API)
     if (!priv->websiteDataManager)
@@ -620,6 +632,21 @@ static void webkit_web_context_class_init(WebKitWebContextClass* webContextClass
         g_param_spec_boxed(
             "memory-pressure-settings",
             nullptr, nullptr,
+            WEBKIT_TYPE_MEMORY_PRESSURE_SETTINGS,
+            static_cast<GParamFlags>(WEBKIT_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY));
+
+    /**
+     * WebKitWebContext:service-worker-memory-pressure-settings:
+     *
+     * The #WebKitMemoryPressureSettings applied to the service worker web processes created by this context.
+     *
+     * Since: 2.38
+     */
+    sObjProperties[PROP_SERVICE_WORKER_MEMORY_PRESSURE_SETTINGS] =
+        g_param_spec_boxed(
+            "service-worker-memory-pressure-settings",
+            _("Service Worker Memory Pressure Settings"),
+            _("The WebKitMemoryPressureSettings applied to the service worker web processes created by this context"),
             WEBKIT_TYPE_MEMORY_PRESSURE_SETTINGS,
             static_cast<GParamFlags>(WEBKIT_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY));
 
