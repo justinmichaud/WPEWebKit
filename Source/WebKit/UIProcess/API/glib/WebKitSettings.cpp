@@ -4839,3 +4839,15 @@ void webkit_settings_set_enable_ice_candidate_filtering(WebKitSettings* settings
     priv->preferences->setICECandidateFilteringEnabled(enabled);
     g_object_notify(G_OBJECT(settings), "enable-ice-candidate-filtering");
 }
+
+gboolean webkit_settings_get_enable_non_composited_webgl(WebKitSettings* settings)
+{
+    g_return_val_if_fail(WEBKIT_IS_SETTINGS(settings), FALSE);
+
+    return FALSE;
+}
+
+void webkit_settings_set_enable_non_composited_webgl(WebKitSettings* settings, gboolean enabled)
+{
+    g_return_if_fail(WEBKIT_IS_SETTINGS(settings));
+}
