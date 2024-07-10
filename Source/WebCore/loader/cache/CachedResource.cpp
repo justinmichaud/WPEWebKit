@@ -294,7 +294,7 @@ void CachedResource::loadFrom(const CachedResource& resource)
 
     if (isCrossOrigin() && m_options.mode == FetchOptions::Mode::Cors) {
         ASSERT(m_origin);
-        auto accessControlCheckResult = WebCore::passesAccessControlCheck(resource.response(), m_options.storedCredentialsPolicy, *protectedOrigin(), &CrossOriginAccessControlCheckDisabler::singleton());
+        auto accessControlCheckResult = WebCore::passesAccessControlCheck(resource.response(), m_options.credentials, *protectedOrigin(), &CrossOriginAccessControlCheckDisabler::singleton());
         if (!accessControlCheckResult) {
             setResourceError(ResourceError(String(), 0, url(), accessControlCheckResult.error(), ResourceError::Type::AccessControl));
             return;
