@@ -86,6 +86,7 @@ public:
     static String singleCharacterStringForWPEKeyval(unsigned);
 #endif
 
+    friend bool operator==(const WebKeyboardEvent&, const WebKeyboardEvent&);
 private:
     String m_text;
     String m_unmodifiedText;

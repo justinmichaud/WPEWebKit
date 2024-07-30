@@ -4363,6 +4363,11 @@ bool WebPageProxy::handleKeyboardEvent(const NativeWebKeyboardEvent& event)
         return false;
     }
 
+    if (event.type() == WebEventType::KeyDown && !internals().keyEventQueue.isEmpty() && internals().keyEventQueue.last() == event) {
+        // Throtthe key repetition if we still have previous keypress pending
+        return true;
+    }
+
     LOG_WITH_STREAM(KeyHandling, stream << "WebPageProxy::handleKeyboardEvent: " << event.type());
 
     internals().keyEventQueue.append(event);
