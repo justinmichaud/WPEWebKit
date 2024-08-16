@@ -535,6 +535,9 @@ void AuxiliaryProcessProxy::checkForResponsiveness(CompletionHandler<void()>&& r
 {
     startResponsivenessTimer(useLazyStop);
     sendWithAsyncReply(Messages::AuxiliaryProcess::MainThreadPing(), [weakThis = WeakPtr { *this }, responsivenessHandler = WTFMove(responsivenessHandler)]() mutable {
+        if (!weakThis || !weakThis->hasConnection() || !weakThis->connection().isValid())
+            return;
+
         // Schedule an asynchronous task because our completion handler may have been called as a result of the AuxiliaryProcessProxy
         // being in the middle of destruction.
         RunLoop::mainSingleton().dispatch([weakThis = WTFMove(weakThis), responsivenessHandler = WTFMove(responsivenessHandler)]() mutable {
