@@ -115,7 +115,7 @@ WEBKIT_OPTION_DEFINE(USE_QT6 "Whether to use Qt6 instead of Qt5" PUBLIC OFF)
 # Private options specific to the WPE port.
 WEBKIT_OPTION_DEFINE(USE_EXTERNAL_HOLEPUNCH "Whether to enable external holepunch" PRIVATE OFF)
 WEBKIT_OPTION_DEFINE(USE_SPIEL "Whether to enable usage of LibSpiel for speech synthesis." PRIVATE OFF)
-WEBKIT_OPTION_DEFINE(USE_SYSPROF_CAPTURE "Whether to use libsysprof-capture for tracing." PRIVATE ON)
+WEBKIT_OPTION_DEFINE(USE_SYSPROF_CAPTURE "Whether to use libsysprof-capture for tracing." PRIVATE OFF)
 WEBKIT_OPTION_DEFINE(USE_SYSTEM_SYSPROF_CAPTURE "Whether to use a system-provided libsysprof-capture" PRIVATE ON)
 WEBKIT_OPTION_DEFINE(USE_SYSTEM_UNIFDEF "Whether to use a system-provided unifdef" PRIVATE ON)
 WEBKIT_OPTION_DEFINE(ENABLE_JSC_RESTRICTED_OPTIONS_BY_DEFAULT "Whether to enable dangerous development options in JSC by default." PRIVATE OFF)
