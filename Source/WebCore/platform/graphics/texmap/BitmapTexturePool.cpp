@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "BitmapTexturePool.h"
+#include <wtf/text/StringToIntegerConversion.h>
 
 #if USE(TEXTURE_MAPPER)
 
@@ -44,9 +45,16 @@ static const Seconds releaseUnusedTexturesTimerIntervalOnLimitExceeded { 200_ms 
 
 BitmapTexturePool::BitmapTexturePool()
     : m_releaseUnusedTexturesTimer(RunLoop::currentSingleton(), "BitmapTexturePool::ReleaseUnusedTexturesTimer"_s, this, &BitmapTexturePool::releaseUnusedTexturesTimerFired)
+    , m_poolSizeLimit(poolSizeLimit)
     , m_releaseUnusedSecondsTolerance(releaseUnusedSecondsTolerance)
     , m_releaseUnusedTexturesTimerInterval(releaseUnusedTexturesTimerInterval)
 {
+    String envString = String::fromLatin1(getenv("WPE_BITMAP_TEXTURE_POOL_PIXEL_LIMIT"));
+    if (!envString.isEmpty()) {
+        uint64_t limit = parseInteger<uint64_t>(envString).value_or(0);
+        m_poolSizeLimit = limit > 0 ? limit : poolSizeLimit;
+    }
+
 }
 
 Ref<BitmapTexture> BitmapTexturePool::acquireTexture(const IntSize& size, OptionSet<BitmapTexture::Flags> flags)
@@ -134,7 +142,7 @@ void BitmapTexturePool::enterLimitExceededModeIfNeeded()
     if (m_onLimitExceededMode)
         return;
 
-    if (m_poolSize > poolSizeLimit) {
+    if (m_poolSize > m_poolSizeLimit) {
         // If we allocated a new texture and this caused that we went over the size limit, enter limit exceeded mode,
         // set values for tolerance and interval for this mode, and trigger an immediate request to release textures.
         // While on limit exceeded mode, we are more aggressive releasing textures, by polling more often and keeping
@@ -153,7 +161,7 @@ void BitmapTexturePool::exitLimitExceededModeIfNeeded()
 
     // If we're in limit exceeded mode and the pool size has become smaller than the limit,
     // exit the limit exceeded mode and set the default values for interval and tolerance again.
-    if (m_poolSize <= poolSizeLimit) {
+    if (m_poolSize <= m_poolSizeLimit) {
         m_onLimitExceededMode = false;
         m_releaseUnusedSecondsTolerance = releaseUnusedSecondsTolerance;
         m_releaseUnusedTexturesTimerInterval = releaseUnusedTexturesTimerInterval;
