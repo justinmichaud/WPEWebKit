@@ -2111,6 +2111,12 @@ bool RenderBox::repaintLayerRectsForImage(WrappedImagePtr image, const FillLayer
                     rendererRect = borderBoxRect();
                 }
             }
+            // There are 2 cases here that need explanation when we're drawing the root background.
+            // * If this is the DocumentElementRenderer, then we use it as renderer.
+            // * If this is the body element, its background image can be painted by itself (if paintsOwnBackground is false) or
+            //   by the DocumentElementRenderer. In both cases setting this instance as the renderer does the appropriate job.
+            layerRenderer = this;
+            rendererRect = borderBoxRect();
             // FIXME: Figure out how to pass absolute position to calculateBackgroundImageGeometry (for pixel snapping)
             auto geometry = BackgroundPainter::calculateBackgroundImageGeometry(*layerRenderer, nullptr, *layer, LayoutPoint(), rendererRect);
             if (geometry.hasNonLocalGeometry) {

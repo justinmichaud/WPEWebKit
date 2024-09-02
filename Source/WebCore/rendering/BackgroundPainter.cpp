@@ -115,6 +115,8 @@ bool BackgroundPainter::paintsOwnBackground(const RenderBoxModelObject& renderer
         return true;
     if (renderer.shouldApplyAnyContainment())
         return true;
+    if (renderer.isComposited())
+        return true;
     // The <body> only paints its background if the root element has defined a background independent of the body,
     // or if the <body>'s parent is not the document element's renderer (e.g. inside SVG foreignObject).
     auto documentElementRenderer = renderer.document().documentElement()->renderer();
