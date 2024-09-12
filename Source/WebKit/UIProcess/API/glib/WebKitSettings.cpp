@@ -195,6 +195,7 @@ enum {
     PROP_ALLOW_RUNNING_OF_INSECURE_CONTENT,
     PROP_ALLOW_DISPLAY_OF_INSECURE_CONTENT,
     PROP_ENABLE_SERVICE_WORKER,
+    PROP_ENABLE_ICE_CANDIDATE_FILTERING,
     N_PROPERTIES,
 };
 
@@ -443,6 +444,9 @@ ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     case PROP_ENABLE_SERVICE_WORKER:
         webkit_settings_set_enable_service_worker(settings, g_value_get_boolean(value));
         break;
+    case PROP_ENABLE_ICE_CANDIDATE_FILTERING:
+        webkit_settings_set_enable_ice_candidate_filtering(settings, g_value_get_boolean(value));
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, propId, paramSpec);
         break;
@@ -674,6 +678,9 @@ ALLOW_DEPRECATED_DECLARATIONS_BEGIN
         break;
     case PROP_ENABLE_SERVICE_WORKER:
         g_value_set_boolean(value, webkit_settings_get_enable_service_worker(settings));
+        break;
+    case PROP_ENABLE_ICE_CANDIDATE_FILTERING:
+        g_value_set_boolean(value, webkit_settings_get_enable_ice_candidate_filtering(settings));
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, propId, paramSpec);
@@ -1832,6 +1839,19 @@ static void webkit_settings_class_init(WebKitSettingsClass* klass)
         "enable-service-worker",
         _("Enable service worker"),
         _("Whether service worker support should be enabled."),
+        TRUE,
+        readWriteConstructParamFlags);
+
+    /**
+     * WebKitSettings:enable-ice-candidate-filtering:
+     *
+     * Enable or disable ICE candidate filtering.
+     *
+     */
+    sObjProperties[PROP_ENABLE_ICE_CANDIDATE_FILTERING] = g_param_spec_boolean(
+        "enable-ice-candidate-filtering",
+        _("Enable ICE candidate filtering"),
+        _("Whether ICE candidate filtering should be enabled."),
         TRUE,
         readWriteConstructParamFlags);
 
@@ -4783,4 +4803,39 @@ void webkit_settings_set_enable_service_worker(WebKitSettings* settings, gboolea
 
     priv->preferences->setServiceWorkersEnabled(enabled);
     g_object_notify_by_pspec(G_OBJECT(settings), sObjProperties[PROP_ENABLE_SERVICE_WORKER]);
+}
+
+/**
+ * webkit_settings_get_enable_ice_candidate_filtering:
+ * @settings: a #WebKitSettings
+ *
+ * Get the #WebKitSettings:enable-ice-candidate-filtering property.
+ *
+ * Returns: %TRUE If ICE candidate filtering is enabled or %FALSE otherwise.
+ */
+gboolean webkit_settings_get_enable_ice_candidate_filtering(WebKitSettings* settings)
+{
+    g_return_val_if_fail(WEBKIT_IS_SETTINGS(settings), FALSE);
+
+    return settings->priv->preferences->iceCandidateFilteringEnabled();
+}
+
+/**
+ * webkit_settings_set_enable_ice_candidate_filtering:
+ * @settings: a #WebKitSettings
+ * @enabled: Value to be set
+ *
+ * Set the #WebKitSettings:enable-ice-candidate-filtering property.
+ */
+void webkit_settings_set_enable_ice_candidate_filtering(WebKitSettings* settings, gboolean enabled)
+{
+    g_return_if_fail(WEBKIT_IS_SETTINGS(settings));
+
+    WebKitSettingsPrivate* priv = settings->priv;
+    bool currentValue = priv->preferences->iceCandidateFilteringEnabled();
+    if (currentValue == enabled)
+        return;
+
+    priv->preferences->setICECandidateFilteringEnabled(enabled);
+    g_object_notify(G_OBJECT(settings), "enable-ice-candidate-filtering");
 }
