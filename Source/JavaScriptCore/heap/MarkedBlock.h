@@ -254,7 +254,12 @@ public:
         ~Footer();
 
         static ptrdiff_t offsetOfVM() { return OBJECT_OFFSETOF(Footer, m_vm); }
-        
+
+        Handle* handlePointerForNullCheck()
+        {
+            return WTF::opaque(&m_handle);
+        }
+
     private:
         friend class LLIntOffsetsExtractor;
         friend class MarkedBlock;
