@@ -106,9 +106,9 @@ WEBKIT_OPTION_DEFINE(ENABLE_WPE_QT_API "Whether to enable support for the Qt/QML
 WEBKIT_OPTION_DEFINE(ENABLE_WPE_1_1_API "Whether to build WPE 1.1 instead of WPE 2.0" PUBLIC ON)
 WEBKIT_OPTION_DEFINE(USE_ATK "Whether to enable usage of ATK." PUBLIC ON)
 WEBKIT_OPTION_DEFINE(USE_FLITE "Whether to enable usage of Flite for speech synthesis." PUBLIC ON)
-WEBKIT_OPTION_DEFINE(USE_GBM "Whether to enable usage of GBM." PUBLIC ON)
+WEBKIT_OPTION_DEFINE(USE_GBM "Whether to enable usage of GBM." PUBLIC OFF)
 WEBKIT_OPTION_DEFINE(USE_LIBBACKTRACE "Whether to enable usage of libbacktrace." PUBLIC ON)
-WEBKIT_OPTION_DEFINE(USE_LIBDRM "Whether to enable usage of libdrm." PUBLIC ON)
+WEBKIT_OPTION_DEFINE(USE_LIBDRM "Whether to enable usage of libdrm." PUBLIC OFF)
 WEBKIT_OPTION_DEFINE(USE_SKIA_OPENTYPE_SVG "Whether to use the Skia built-in support for OpenType SVG fonts." PUBLIC OFF)
 WEBKIT_OPTION_DEFINE(USE_QT6 "Whether to use Qt6 instead of Qt5" PUBLIC OFF)
 
