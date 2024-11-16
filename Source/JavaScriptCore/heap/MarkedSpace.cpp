@@ -374,7 +374,7 @@ bool MarkedSpace::isPagedOut()
     return pagedOutPagesStats.mean() > pagedOutPagesStats.count() * bailoutPercentage;
 }
 
-// Don't forget to remove this once we're done debugging (rdar://136782494)
+// FIXME: rdar://139998916
 MarkedBlock::Handle* MarkedSpace::findMarkedBlockHandleDebug(MarkedBlock* block)
 {
     MarkedBlock::Handle* result = nullptr;
