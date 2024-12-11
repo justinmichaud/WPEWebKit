@@ -35,7 +35,9 @@
 #include <windows.h>
 #endif
 
+#include <cstring>
 #include <thread>
+#include <unistd.h>
 
 namespace bmalloc {
 
@@ -50,7 +52,23 @@ static inline void yield()
     if (!SwitchToThread())
         Sleep(0);
 #else
-    sched_yield();
+    static size_t bmallocMicrosecondsSleep;
+    static std::once_flag onceFlag;
+    std::call_once(onceFlag, [] {
+        const char* env = getenv("WEBKIT_WPE_BMALLOC_MICROSECONDS_SLEEP");
+        if (env && env[strnlen(env, 5)] == '\0') {
+            int value;
+            if (sscanf(env, "%d", &value) == 1 && value > 0)
+                bmallocMicrosecondsSleep = value;
+        }
+    });
+    if (bmallocMicrosecondsSleep) {
+        // The use of sched_yield() can lead to a system hang when real time
+        // thread priorities are used, so use sleep in the absence of a better
+        // alternative.
+        usleep(bmallocMicrosecondsSleep);
+    } else
+        sched_yield();
 #endif
 }
 
