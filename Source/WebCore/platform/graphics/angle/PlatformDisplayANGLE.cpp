@@ -56,6 +56,18 @@ EGLDisplay PlatformDisplay::angleEGLDisplay() const
         return EGL_NO_DISPLAY;
 
     EGLint majorVersion, minorVersion;
+    if (EGL_Initialize(angleDisplay, &majorVersion, &minorVersion) == EGL_TRUE) {
+        LOG(WebGL, "ANGLE initialised Major: %d Minor: %d", majorVersion, minorVersion);
+        m_angleEGLDisplay = angleDisplay;
+        return m_angleEGLDisplay;
+    }
+
+    // ANGLE will fail getting a display using the EGLNativeDisplay provided by the Westeros backend. But
+    // it will work using EGL_DEFAULT_DISPLAY, so let's try again with that value to keep Westeros working.
+    angleDisplay = EGL_GetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, displayAttributes.span().data());
+    if (angleDisplay == EGL_NO_DISPLAY)
+        return EGL_NO_DISPLAY;
+
     if (EGL_Initialize(angleDisplay, &majorVersion, &minorVersion) == EGL_FALSE) {
         LOG(WebGL, "EGLDisplay Initialization failed.");
         return EGL_NO_DISPLAY;
