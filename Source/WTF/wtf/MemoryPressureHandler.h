@@ -140,6 +140,7 @@ public:
 
     void setMemoryPressureStatus(SystemMemoryPressureStatus);
     SystemMemoryPressureStatus memoryPressureStatus() const { return m_memoryPressureStatus; }
+    double criticalMemoryThreshold() const { return m_configuration.baseThreshold * m_configuration.strictThresholdFraction; }
 
     WTF_EXPORT_PRIVATE MemoryUsagePolicy currentMemoryUsagePolicy();
 

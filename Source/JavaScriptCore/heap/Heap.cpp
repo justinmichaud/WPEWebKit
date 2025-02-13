@@ -87,6 +87,7 @@
 #include <algorithm>
 #include <wtf/CryptographicallyRandomNumber.h>
 #include <wtf/ListDump.h>
+#include <wtf/MemoryPressureHandler.h>
 #include <wtf/RAMSize.h>
 #include <wtf/Scope.h>
 #include <wtf/SimpleStats.h>
@@ -694,6 +695,7 @@ bool Heap::overCriticalMemoryThreshold(MemoryThresholdCallType memoryThresholdCa
 #if USE(BMALLOC_MEMORY_FOOTPRINT_API)
     if (memoryThresholdCallType == MemoryThresholdCallType::Direct || ++m_percentAvailableMemoryCachedCallCount >= 100) {
         m_overCriticalMemoryThreshold = bmalloc::api::percentAvailableMemoryInUse() > Options::criticalGCMemoryThreshold();
+        m_overCriticalMemoryThreshold |= bmalloc::api::memoryFootprint() > MemoryPressureHandler::singleton().criticalMemoryThreshold();
         m_percentAvailableMemoryCachedCallCount = 0;
     }
 
