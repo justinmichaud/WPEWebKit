@@ -129,7 +129,7 @@ WEBKIT_INCLUDE_CONFIG_FILES_IF_EXISTS()
 add_subdirectory(include)
 
 add_library(ANGLEFramework INTERFACE)
-add_dependencies(ANGLEFramework GLSLANGHeaders ANGLEHeaders)
+add_dependencies(ANGLEFramework GLSLANGHeaders KHRHeaders ANGLEHeaders)
 
 if (USE_ANGLE_EGL OR ENABLE_WEBGL)
     add_library(ANGLE ${ANGLE_LIBRARY_TYPE}

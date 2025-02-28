@@ -20,10 +20,9 @@ set(glslang_headers
     GLSLANG/ShaderVars.h
 )
 
-set(ANGLE_PUBLIC_HEADERS ${khr_headers})
-
 if (USE_ANGLE_EGL)
     list(APPEND ANGLE_PUBLIC_HEADERS
+        ${khr_headers}
         ${egl_headers}
         ${gles_headers}
         ${gles2_headers}
@@ -53,6 +52,12 @@ WEBKIT_COPY_FILES(GLSLANGHeaders
     DESTINATION ${ANGLE_FRAMEWORK_HEADERS_DIR}/ANGLE
     FILES ${glslang_headers}
     FLATTENED
+)
+
+# needed by GLSLANGHeaders
+WEBKIT_COPY_FILES(KHRHeaders
+    DESTINATION ${ANGLE_FRAMEWORK_HEADERS_DIR}/ANGLE
+    FILES ${khr_headers}
 )
 
 WEBKIT_COPY_FILES(ANGLEHeaders
