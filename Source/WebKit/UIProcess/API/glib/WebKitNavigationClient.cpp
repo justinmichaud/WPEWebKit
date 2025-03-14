@@ -91,6 +91,11 @@ private:
         webkitWebViewLoadFailed(m_webView, WEBKIT_LOAD_COMMITTED, resourceError.failingURL().string().utf8().data(), error.get());
     }
 
+    void didFinishDocumentLoad(WebKit::WebPageProxy&, API::Navigation*, API::Object*) override
+    {
+        webkitWebViewDocumentLoaded(m_webView);
+    }
+
     void didDisplayInsecureContent(WebPageProxy&, API::Object* /* userData */) override
     {
         webkitWebViewInsecureContentDetected(m_webView, WEBKIT_INSECURE_CONTENT_DISPLAYED);
