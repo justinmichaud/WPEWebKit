@@ -28,9 +28,12 @@
 
 #include "DestinationColorSpace.h"
 #include "FloatRect.h"
+#include "Frame.h"
+#include "FrameView.h"
 #include "HostWindow.h"
 #include "LocalFrameView.h"
 #include "NotImplemented.h"
+#include "Settings.h"
 #include "ScreenProperties.h"
 #include "Widget.h"
 
@@ -150,4 +153,11 @@ bool screenSupportsExtendedColor(Widget*)
     return false;
 }
 
+bool screenSupportsHighDynamicRange(Widget* widget)
+{
+    if(!widget || !widget->root())
+        return false;
+
+    return widget->root()->frame().settings().screenSupportsHDR();
+}
 } // namespace WebCore

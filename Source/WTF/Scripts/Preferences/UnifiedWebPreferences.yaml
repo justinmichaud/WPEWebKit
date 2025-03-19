@@ -6489,6 +6489,19 @@ ScreenOrientationLockingAPIEnabled:
     WebCore:
       default: false
 
+ScreenSupportsHDR:
+  type: bool
+  status: embedder
+  humanReadableName: "Screen supports HDR"
+  humanReadableDescription: "Screen supports HDR"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+
 ScreenTimeEnabled:
   type: bool
   status: internal
