@@ -722,6 +722,8 @@ messages -> WebPage WantsAsyncDispatchMessage {
 
     UpdateCORSDisablingPatterns(Vector<String> patterns)
 
+    SetLocalUniversalAccessAllowList(Vector<String> patterns)
+
     SetIsTakingSnapshotsForApplicationSuspension(bool isTakingSnapshotsForApplicationSuspension)
     SetNeedsDOMWindowResizeEvent()
 

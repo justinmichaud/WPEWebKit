@@ -852,6 +852,8 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
     pageConfiguration.httpsUpgradeEnabled = parameters.httpsUpgradeEnabled;
     pageConfiguration.portsForUpgradingInsecureSchemeForTesting = parameters.portsForUpgradingInsecureSchemeForTesting;
 
+    m_localUniversalAccessAllowList = WTFMove(parameters.localUniversalAccessAllowList);
+
     if (!parameters.crossOriginAccessControlCheckEnabled)
         CrossOriginAccessControlCheckDisabler::singleton().setCrossOriginAccessControlCheckEnabled(false);
 
@@ -9192,6 +9194,11 @@ void WebPage::updateCORSDisablingPatterns(Vector<String>&& patterns)
     m_corsDisablingPatterns = WTFMove(patterns);
     synchronizeCORSDisablingPatternsWithNetworkProcess();
     page->setCORSDisablingPatterns(parseAndAllowAccessToCORSDisablingPatterns(m_corsDisablingPatterns));
+}
+
+void WebPage::setLocalUniversalAccessAllowList(Vector<String>&& allowList)
+{
+    m_localUniversalAccessAllowList = WTFMove(allowList);
 }
 
 void WebPage::synchronizeCORSDisablingPatternsWithNetworkProcess()

@@ -283,6 +283,11 @@ private:
     {
     }
 
+    bool shouldForceUniversalAccessFromLocalURL(WebKit::WebPage& webPage, const WTF::String& url) override
+    {
+        return webPage.localUniversalAccessAllowList().contains(url);
+    }
+
     WebKitWebPage* m_webPage;
 };
 

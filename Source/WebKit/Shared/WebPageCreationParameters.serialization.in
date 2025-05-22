@@ -195,6 +195,7 @@ enum class WebCore::UserInterfaceLayoutDirection : bool;
 
     String overriddenMediaType;
     Vector<String> corsDisablingPatterns;
+    Vector<String> localUniversalAccessAllowList;
     HashSet<String> maskedURLSchemes;
     bool loadsSubresources;
     std::optional<MemoryCompactLookupOnlyRobinHoodHashSet<String>> allowedNetworkHosts;

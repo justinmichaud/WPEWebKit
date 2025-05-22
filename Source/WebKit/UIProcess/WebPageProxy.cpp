@@ -12029,6 +12029,7 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
 
     parameters.overriddenMediaType = m_overriddenMediaType;
     parameters.corsDisablingPatterns = corsDisablingPatterns();
+    parameters.localUniversalAccessAllowList = localUniversalAccessAllowList();
     parameters.maskedURLSchemes = m_configuration->maskedURLSchemes();
     parameters.allowedNetworkHosts = m_configuration->allowedNetworkHosts();
     parameters.loadsSubresources = m_configuration->loadsSubresources();
@@ -15383,6 +15384,12 @@ void WebPageProxy::setCORSDisablingPatterns(Vector<String>&& patterns)
 {
     m_corsDisablingPatterns = WTFMove(patterns);
     send(Messages::WebPage::UpdateCORSDisablingPatterns(m_corsDisablingPatterns));
+}
+
+void WebPageProxy::setLocalUniversalAccessAllowList(Vector<String>&& allowList)
+{
+    m_localUniversalAccessAllowList = WTFMove(allowList);
+    send(Messages::WebPage::SetLocalUniversalAccessAllowList(m_localUniversalAccessAllowList));
 }
 
 void WebPageProxy::setOverriddenMediaType(const String& mediaType)
