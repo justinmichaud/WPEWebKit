@@ -40,6 +40,21 @@ void installBreakpadExceptionHandler()
 {
     static std::once_flag onceFlag;
     static MainThreadLazyNeverDestroyed<google_breakpad::ExceptionHandler> exceptionHandler;
+
+    // Use BREAKPAD_FD environment variable to pass the file descriptor where the minidump should be written.
+    // This is useful for environments where the filesystem is not available or not writable
+    // such as in some containerized environments.
+    const char* breakpadFd = getenv("BREAKPAD_FD");
+    if (breakpadFd) {
+        std::call_once(onceFlag, [breakpadFd]() {
+            exceptionHandler.construct(google_breakpad::MinidumpDescriptor(atoi(breakpadFd)), nullptr,
+                [](const google_breakpad::MinidumpDescriptor&, void*, bool succeeded) -> bool {
+                    return succeeded;
+                }, nullptr, true, -1);
+        });
+        return;
+    }
+
     static String breakpadMinidumpDir = String::fromUTF8(getenv("BREAKPAD_MINIDUMP_DIR"));
 
 #ifdef BREAKPAD_MINIDUMP_DIR
