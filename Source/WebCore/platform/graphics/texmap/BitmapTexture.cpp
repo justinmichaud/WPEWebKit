@@ -444,6 +444,12 @@ void BitmapTexture::bindAsSurface()
 
 BitmapTexture::~BitmapTexture()
 {
+    GLContext* currentContext = GLContext::current();
+    if (!currentContext || !currentContext->platformContext()) {
+        // The context has been destroyed already, so we can't clean up.
+        return;
+    }
+
     glDeleteTextures(1, &m_id);
 
     if (m_fbo)
