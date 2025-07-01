@@ -307,7 +307,7 @@ unsigned SkiaPaintingEngine::numberOfCPUPaintingThreads()
     std::call_once(onceFlag, [] {
         numberOfThreads = std::max(1, std::min(8, WTF::numberOfProcessorCores() / 2)); // By default, use half the CPU cores, capped at 8.
 
-        if (const char* envString = getenv("WEBKIT_SKIA_CPU_PAINTING_THREADS")) {
+        if (const char* envString = getenv("WEBKIT_NICOSIA_PAINTING_THREADS")) {
             auto newValue = parseInteger<unsigned>(StringView::fromLatin1(envString));
             if (newValue && *newValue <= 8)
                 numberOfThreads = *newValue;
