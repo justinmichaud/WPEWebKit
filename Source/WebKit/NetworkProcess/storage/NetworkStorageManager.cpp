@@ -420,8 +420,12 @@ void NetworkStorageManager::spaceGrantedForOrigin(const WebCore::ClientOrigin& o
         std::optional<uint64_t> volumeCapacity;
         if (m_volumeCapacityOverride)
             volumeCapacity = m_volumeCapacityOverride;
-        else if (auto capacity = FileSystem::volumeCapacity(m_path))
-            volumeCapacity = WTF::roundUpToMultipleOf(defaultVolumeCapacityUnit, *capacity);
+        else if (auto capacity = FileSystem::volumeCapacity(m_path)) {
+            if (*capacity < defaultVolumeCapacityUnit)
+                volumeCapacity = *capacity;
+            else
+                volumeCapacity = WTF::roundUpToMultipleOf(defaultVolumeCapacityUnit, *capacity);
+        }
         if (volumeCapacity)
             m_totalQuota = *m_totalQuotaRatio * *volumeCapacity;
         else
@@ -583,8 +587,12 @@ OriginQuotaManager::Parameters NetworkStorageManager::originQuotaManagerParamete
         std::optional<uint64_t> volumeCapacity;
         if (m_volumeCapacityOverride)
             volumeCapacity = m_volumeCapacityOverride;
-        else if (auto capacity = FileSystem::volumeCapacity(m_path))
-            volumeCapacity = WTF::roundUpToMultipleOf(defaultVolumeCapacityUnit, *capacity);
+        else if (auto capacity = FileSystem::volumeCapacity(m_path)) {
+            if (*capacity < defaultVolumeCapacityUnit)
+                volumeCapacity = *capacity;
+            else
+                volumeCapacity = WTF::roundUpToMultipleOf(defaultVolumeCapacityUnit, *capacity);
+        }
         if (volumeCapacity) {
             quota = m_originQuotaRatio.value() * volumeCapacity.value();
             increaseQuotaFunction = { };
