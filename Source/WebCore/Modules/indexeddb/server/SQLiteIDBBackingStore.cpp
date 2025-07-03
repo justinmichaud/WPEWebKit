@@ -871,6 +871,7 @@ IDBError SQLiteIDBBackingStore::getOrEstablishDatabaseInfo(IDBDatabaseInfo& info
         return IDBError { ExceptionCode::UnknownError, "Unable to open database file on disk"_s };
 
     m_sqliteDB->disableThreadingChecks();
+    m_sqliteDB->turnOnIncrementalAutoVacuum();
     m_sqliteDB->enableAutomaticWALTruncation();
 
     m_sqliteDB->setCollationFunction("IDBKEY"_s, [](int aLength, const void* a, int bLength, const void* b) {
@@ -919,6 +920,10 @@ IDBError SQLiteIDBBackingStore::getOrEstablishDatabaseInfo(IDBDatabaseInfo& info
 
     m_databaseInfo = WTFMove(databaseInfo);
     info = *m_databaseInfo;
+
+    // Check if we are be able to free up some space on the file system
+    incrementalVacuumIfNeeded();
+
     return IDBError { };
 }
 
@@ -2712,6 +2717,22 @@ void SQLiteIDBBackingStore::forEachObjectStoreRecord(const IDBResourceIdentifier
         return;
     }
 }
+
+void SQLiteIDBBackingStore::incrementalVacuumIfNeeded()
+{
+    ASSERT(m_sqliteDB);
+    ASSERT(m_sqliteDB->isOpen());
+
+    int64_t freeSpaceSize = m_sqliteDB->freeSpaceSize();
+    int64_t totalSize = m_sqliteDB->totalSize();
+
+    if (totalSize <= 10 * freeSpaceSize) {
+        int result = m_sqliteDB->runIncrementalVacuumCommand();
+        if (result != SQLITE_DONE)
+            LOG_ERROR("Failed to perform incremental vacuum on database for path '%s'", fullDatabasePath().utf8().data());
+    }
+}
+
 
 #undef TABLE_SCHEMA_PREFIX
 #undef V3_RECORDS_TABLE_SCHEMA_SUFFIX

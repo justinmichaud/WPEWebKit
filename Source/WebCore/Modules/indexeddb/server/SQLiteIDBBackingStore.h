@@ -141,6 +141,8 @@ private:
     bool migrateIndexInfoTableForIDUpdate(const HashMap<std::pair<IDBObjectStoreIdentifier, IDBIndexIdentifier>, IDBIndexIdentifier>& indexIDMap);
     bool migrateIndexRecordsTableForIDUpdate(const HashMap<std::pair<IDBObjectStoreIdentifier, IDBIndexIdentifier>, IDBIndexIdentifier>& indexIDMap);
 
+    void incrementalVacuumIfNeeded();
+
     enum class SQL : size_t {
         CreateObjectStoreInfo,
         CreateObjectStoreKeyGenerator,
