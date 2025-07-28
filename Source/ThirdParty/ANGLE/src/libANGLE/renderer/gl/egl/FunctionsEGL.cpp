@@ -44,6 +44,7 @@ bool IsValidPlatformTypeForPlatformDisplayConnection(EGLAttrib platformType)
     {
         case EGL_PLATFORM_SURFACELESS_MESA:
         case EGL_PLATFORM_GBM_KHR:
+        case EGL_PLATFORM_WAYLAND_EXT:
             return true;
         default:
             break;
@@ -429,6 +430,10 @@ EGLDisplay FunctionsEGL::getPlatformDisplay(EGLAttrib platformType,
             {
                 return EGL_NO_DISPLAY;
             }
+            break;
+        case EGL_PLATFORM_WAYLAND_EXT:
+            if (!hasExtension("EGL_EXT_platform_wayland"))
+                return EGL_NO_DISPLAY;
             break;
         default:
             UNREACHABLE();
