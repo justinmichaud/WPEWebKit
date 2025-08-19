@@ -109,7 +109,7 @@ WEBKIT_OPTION_DEFINE(USE_FLITE "Whether to enable usage of Flite for speech synt
 WEBKIT_OPTION_DEFINE(USE_GBM "Whether to enable usage of GBM." PUBLIC ON)
 WEBKIT_OPTION_DEFINE(USE_LIBBACKTRACE "Whether to enable usage of libbacktrace." PUBLIC ON)
 WEBKIT_OPTION_DEFINE(USE_LIBDRM "Whether to enable usage of libdrm." PUBLIC ON)
-WEBKIT_OPTION_DEFINE(USE_SKIA_OPENTYPE_SVG "Whether to use the Skia built-in support for OpenType SVG fonts." PUBLIC ON)
+WEBKIT_OPTION_DEFINE(USE_SKIA_OPENTYPE_SVG "Whether to use the Skia built-in support for OpenType SVG fonts." PUBLIC OFF)
 WEBKIT_OPTION_DEFINE(USE_QT6 "Whether to use Qt6 instead of Qt5" PUBLIC OFF)
 
 # Private options specific to the WPE port.
