@@ -501,6 +501,10 @@ void GraphicsLayerCoordinated::updateRootRelativeScale()
         rootRelativeScaleFactor *= downcast<GraphicsLayerCoordinated>(*m_parent).rootRelativeScaleFactor();
     }
 
+    // Besides the transforms that have been calculated, the element may have another transform that's applied
+    // by an animation during the composition. Take that maximum value into account as well.
+    rootRelativeScaleFactor *= m_animations.maximumScaleFactor();
+
     if (rootRelativeScaleFactor != m_rootRelativeScaleFactor) {
         m_rootRelativeScaleFactor = rootRelativeScaleFactor;
         noteLayerPropertyChanged(Change::ContentsScale, ScheduleFlush::Yes);

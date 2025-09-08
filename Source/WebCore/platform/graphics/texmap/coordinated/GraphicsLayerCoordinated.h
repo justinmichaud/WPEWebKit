@@ -208,7 +208,7 @@ private:
         TransformationMatrix cachedCombined;
     } m_layerTransform;
     bool m_needsUpdateLayerTransform { false };
-    bool m_shouldUpdateRootRelativeScaleFactor : 1 { false };
+    bool m_shouldUpdateRootRelativeScaleFactor : 1 { true };
     float m_rootRelativeScaleFactor { 1.0f };
     RefPtr<CoordinatedPlatformLayerBufferProxy> m_contentsBufferProxy;
     RefPtr<GraphicsLayerContentsDisplayDelegate> m_contentsDisplayDelegate;

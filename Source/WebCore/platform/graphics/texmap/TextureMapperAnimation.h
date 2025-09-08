@@ -103,6 +103,7 @@ public:
 
     bool hasRunningAnimations() const;
     bool hasRunningTransformAnimations() const;
+    float maximumScaleFactor() const;
 
 private:
     TransformationMatrix m_translate;
