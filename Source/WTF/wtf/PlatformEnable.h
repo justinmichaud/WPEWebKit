@@ -447,9 +447,7 @@
 
 #if !defined(ENABLE_SECURITY_ASSERTIONS)
 /* Enable security assertions on all ASAN builds and debug builds. */
-#if ASAN_ENABLED || !defined(NDEBUG)
 #define ENABLE_SECURITY_ASSERTIONS 1
-#endif
 #endif
 
 #if !defined(ENABLE_SEPARATED_WX_HEAP)
@@ -833,9 +831,7 @@
 #define ENABLE_THREADING_GENERIC 1
 #endif
 
-#if !defined(ENABLE_GC_VALIDATION) && !defined(NDEBUG)
 #define ENABLE_GC_VALIDATION 1
-#endif
 
 #if OS(DARWIN) && ENABLE(JIT) && USE(APPLE_INTERNAL_SDK) && CPU(ARM64E) && HAVE(JIT_CAGE) && !PLATFORM(MAC)
 #define ENABLE_JIT_CAGE 1

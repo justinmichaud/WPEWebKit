@@ -144,7 +144,7 @@ class Watchdog;
 class WatchpointSet;
 class Waiter;
 
-#if ENABLE(DFG_JIT) && ASSERT_ENABLED
+#if ENABLE(DFG_JIT)
 #define ENABLE_DFG_DOES_GC_VALIDATION 1
 #else
 #define ENABLE_DFG_DOES_GC_VALIDATION 0
