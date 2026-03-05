@@ -535,16 +535,14 @@ NO_RETURN_DUE_TO_CRASH NEVER_INLINE void MarkedBlock::dumpInfoAndCrashForInvalid
     }
 
     auto updateCrashLogMsg = [&](int line) {
-#if PLATFORM(COCOA)
         StringPrintStream out;
         out.printf("INVALID HANDLE [%d]: markedBlock=%p; heapCell=%p; cellFirst8Bytes=%#llx; contiguousZeros=%lu; totalZeros=%lu; blockVM=%p; actualVM=%p; isBlockVMValid=%d; isBlockInSet=%d; isBlockInDir=%d; foundInBlockVM=%d;",
-            line, this, heapCell, cellFirst8Bytes, contiguousZeroBytesHeadOfBlock, totalZeroBytesInBlock, blockVM, actualVM, isBlockVMValid, isBlockInSet, isBlockInDirectory, foundInBlockVM);
+            line, this, heapCell, static_cast<long long>(cellFirst8Bytes), contiguousZeroBytesHeadOfBlock, totalZeroBytesInBlock, blockVM, actualVM, isBlockVMValid, isBlockInSet, isBlockInDirectory, foundInBlockVM);
         const char* msg = out.toCString().data();
+#if PLATFORM(COCOA)
         WTF::setCrashLogMessage(msg);
-        dataLogLn(msg);
-#else
-        UNUSED_PARAM(line);
 #endif
+        dataLogLn(msg);
     };
     updateCrashLogMsg(__LINE__);
 
