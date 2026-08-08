@@ -72,6 +72,8 @@ FilterImage::FilterImage(const FloatRect& primitiveSubregion, const FloatRect& i
 {
 }
 
+FilterImage::~FilterImage() = default;
+
 FloatRect FilterImage::maxEffectRect(const Filter& filter) const
 {
     return filter.maxEffectRect(m_primitiveSubregion);

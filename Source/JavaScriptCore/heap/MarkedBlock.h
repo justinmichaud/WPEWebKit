@@ -366,8 +366,9 @@ public:
     JS_EXPORT_PRIVATE bool areMarksStale();
     bool areMarksStale(HeapVersion markingVersion);
     
-    Dependency aboutToMark(HeapVersion markingVersion);
-        
+    // The HeapCell* may be null. It is only read to report diagnostics if this block's Handle is null.
+    Dependency aboutToMark(HeapVersion markingVersion, HeapCell*);
+
 #if ASSERT_ENABLED
     JS_EXPORT_PRIVATE void assertMarksNotStale();
 #else
@@ -401,7 +402,7 @@ private:
     ~MarkedBlock();
     Atom* atoms();
         
-    JS_EXPORT_PRIVATE void aboutToMarkSlow(HeapVersion markingVersion);
+    JS_EXPORT_PRIVATE void aboutToMarkSlow(HeapVersion markingVersion, HeapCell*);
     void clearHasAnyMarked();
     
     void noteMarkedSlow();
@@ -573,12 +574,12 @@ inline bool MarkedBlock::areMarksStale(HeapVersion markingVersion)
     return markingVersion != footer().m_markingVersion;
 }
 
-inline Dependency MarkedBlock::aboutToMark(HeapVersion markingVersion)
+inline Dependency MarkedBlock::aboutToMark(HeapVersion markingVersion, HeapCell* cell)
 {
     HeapVersion version;
     Dependency dependency = Dependency::loadAndFence(&footer().m_markingVersion, version);
     if (UNLIKELY(version != markingVersion))
-        aboutToMarkSlow(markingVersion);
+        aboutToMarkSlow(markingVersion, cell);
     return dependency;
 }
 

@@ -245,7 +245,7 @@ void MarkedBlock::aboutToMarkSlow(HeapVersion markingVersion, HeapCell* cell)
     if (!areMarksStale(markingVersion))
         return;
 
-    MarkedBlock::Handle* handle = header().handlePointerForNullCheck();
+    MarkedBlock::Handle* handle = footer().handlePointerForNullCheck();
     if (UNLIKELY(!handle))
         dumpInfoAndCrashForInvalidHandleV2(locker, cell);
 
@@ -519,7 +519,7 @@ bool MarkedBlock::Handle::isFreeListedCell(const void* target) const
 
 NO_RETURN_DUE_TO_CRASH NEVER_INLINE void MarkedBlock::dumpInfoAndCrashForInvalidHandleV2(AbstractLocker&, HeapCell* heapCell)
 {
-    VM* blockVM = header().m_vm;
+    VM* blockVM = footer().m_vm;
     VM* actualVM = nullptr;
     bool isBlockVMValid = false;
     bool isBlockInSet = false;
@@ -536,7 +536,7 @@ NO_RETURN_DUE_TO_CRASH NEVER_INLINE void MarkedBlock::dumpInfoAndCrashForInvalid
 
     auto updateCrashLogMsg = [&](int line) {
         StringPrintStream out;
-        out.printf("INVALID HANDLE [%d]: markedBlock=%p; heapCell=%p; cellFirst8Bytes=%#llx; contiguousZeros=%lu; totalZeros=%lu; blockVM=%p; actualVM=%p; isBlockVMValid=%d; isBlockInSet=%d; isBlockInDir=%d; foundInBlockVM=%d;",
+        out.printf("INVALID HANDLE [%d]: markedBlock=%p; heapCell=%p; cellFirst8Bytes=%#llx; contiguousZeros=%zu; totalZeros=%zu; blockVM=%p; actualVM=%p; isBlockVMValid=%d; isBlockInSet=%d; isBlockInDir=%d; foundInBlockVM=%d;",
             line, this, heapCell, static_cast<long long>(cellFirst8Bytes), contiguousZeroBytesHeadOfBlock, totalZeroBytesInBlock, blockVM, actualVM, isBlockVMValid, isBlockInSet, isBlockInDirectory, foundInBlockVM);
         const char* msg = out.toCString().data();
 #if PLATFORM(COCOA)
@@ -549,11 +549,11 @@ NO_RETURN_DUE_TO_CRASH NEVER_INLINE void MarkedBlock::dumpInfoAndCrashForInvalid
     char* blockStart = bitwise_cast<char*>(this);
     bool sawNonZero = false;
     for (auto mem = blockStart; mem < blockStart + MarkedBlock::blockSize; mem++) {
-        // Exclude the MarkedBlock::Header::m_lock from the zero scan since taking the lock writes a non-zero value.
+        // Exclude the MarkedBlock::Footer::m_lock from the zero scan since taking the lock writes a non-zero value.
         auto isMLockBytes = [blockStart](char* p) {
-            constexpr size_t lockOffset = offsetOfHeader + OBJECT_OFFSETOF(MarkedBlock::Header, m_lock);
+            const size_t lockOffset = offsetOfFooter + OBJECT_OFFSETOF(MarkedBlock::Footer, m_lock);
             size_t offset = p - blockStart;
-            return lockOffset <= offset && offset < lockOffset + sizeof(MarkedBlock::Header::m_lock);
+            return lockOffset <= offset && offset < lockOffset + sizeof(MarkedBlock::Footer::m_lock);
         };
         bool byteIsZero = !*mem;
         if (byteIsZero || isMLockBytes(mem)) {

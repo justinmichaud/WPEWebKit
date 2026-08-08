@@ -3071,12 +3071,16 @@ bool JSObject::putByIndexBeyondVectorLengthWithArrayStorage(JSGlobalObject* glob
 
     // Copy all values from the map into the vector, and delete the map.
     WriteBarrier<Unknown>* vector = storage->m_vector;
+    unsigned vectorLength = storage->vectorLength();
     SparseArrayValueMap::const_iterator end = map->end();
-    for (SparseArrayValueMap::const_iterator it = map->begin(); it != end; ++it)
+    for (SparseArrayValueMap::const_iterator it = map->begin(); it != end; ++it) {
+        RELEASE_ASSERT(it->key < vectorLength, it->key, vectorLength, storage->length(), map->size());
         vector[it->key].set(vm, this, it->value.getNonSparseMode());
+    }
     deallocateSparseIndexMap();
 
     // Store the new property into the vector.
+    RELEASE_ASSERT(i < vectorLength, i, vectorLength);
     WriteBarrier<Unknown>& valueSlot = vector[i];
     if (!valueSlot)
         ++storage->m_numValuesInVector;
@@ -3217,12 +3221,16 @@ bool JSObject::putDirectIndexBeyondVectorLengthWithArrayStorage(JSGlobalObject* 
 
     // Copy all values from the map into the vector, and delete the map.
     WriteBarrier<Unknown>* vector = storage->m_vector;
+    unsigned vectorLength = storage->vectorLength();
     SparseArrayValueMap::const_iterator end = map->end();
-    for (SparseArrayValueMap::const_iterator it = map->begin(); it != end; ++it)
+    for (SparseArrayValueMap::const_iterator it = map->begin(); it != end; ++it) {
+        RELEASE_ASSERT(it->key < vectorLength, it->key, vectorLength, storage->length(), map->size());
         vector[it->key].set(vm, this, it->value.getNonSparseMode());
+    }
     deallocateSparseIndexMap();
 
     // Store the new property into the vector.
+    RELEASE_ASSERT(i < vectorLength, i, vectorLength);
     WriteBarrier<Unknown>& valueSlot = vector[i];
     if (!valueSlot)
         ++storage->m_numValuesInVector;

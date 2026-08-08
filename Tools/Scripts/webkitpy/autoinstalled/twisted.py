@@ -27,6 +27,13 @@ from webkitscmpy import AutoInstall, Package, Version
 AutoInstall.register(Package('hyperlink', Version(21, 0, 0), pypi_name='hyperlink'))
 AutoInstall.register(Package('constantly', Version(15, 1, 0), pypi_name='constantly'))
 AutoInstall.register(Package('incremental', Version(21, 3, 0), pypi_name='incremental'))
-AutoInstall.register(Package('twisted', Version(20, 3, 0), pypi_name='Twisted'))
+# Twisted 20.3.0 cannot build against Python 3.11 or newer: its twisted.test.raiser C
+# extension includes longintrepr.h, which moved to cpython/longintrepr.h in 3.11. Twisted
+# dropped all C extensions in 21.7.0, so this installs as pure Python.
+# incremental is an implicit_dep because Twisted's setup.py imports it to compute the
+# version; registering it separately only covers the import path, not the build.
+AutoInstall.register(Package('twisted', Version(22, 10, 0), pypi_name='Twisted', implicit_deps=[
+    Package('incremental', Version(21, 3, 0)),
+]))
 
 sys.modules[__name__] = __import__('twisted')
